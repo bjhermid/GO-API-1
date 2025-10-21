@@ -4,16 +4,23 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/bjhermid/go-api-1/config"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func CreateJWT (secret []byte, userID int)(string, error) {
+func CreateJWT(secret []byte, userID int) (string, error) {
+
+	expiration := time.Second * time.Duration(config.Envs.JWTExperetionInSecond)
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId":strconv.Itoa(userID),
-		"expiredAt" : jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+		"userId":    strconv.Itoa(userID),
+		"expiredAt": time.Now().Add(expiration).Unix(),
 	})
 
-	ss, err:= token.SignedString(secret)
-	return ss, err
-	
+	stringToken, err := token.SignedString(secret)
+	if err != nil {
+		return "", err
+	}
+	return stringToken, nil
+
 }

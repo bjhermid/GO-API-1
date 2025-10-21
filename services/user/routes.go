@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/bjhermid/go-api-1/config"
 	"github.com/bjhermid/go-api-1/services/auth"
 	"github.com/bjhermid/go-api-1/types"
 	"github.com/bjhermid/go-api-1/utils"
@@ -24,6 +25,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/register", h.handleRegister).Methods("POST")
 }
 
+// LOGIN
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	var payload types.LoginUserPayload
 	if err := utils.ParseJson(r, &payload); err != nil {
@@ -40,18 +42,26 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := h.store.GetUserByEmail(payload.Email)
-	if err == nil && user != nil {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user not found, invalid email or password"))
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("1. user not found, invalid email or password"))
 		return
 	}
 
-	if !auth.ComparePassword(user.Password,[]byte(payload.Password)){
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user not found, invalid email or password"))
+	if !auth.ComparePassword(user.Password, []byte(payload.Password)) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("2. user not found, invalid email or password"))
 		return
 	}
-	utils.WriteJson(w,http.StatusOK, map[string]string{"token":""})
+	secret := []byte(config.Envs.JWTSecret)
+	token, err := auth.CreateJWT(secret, user.ID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJson(w, http.StatusOK, map[string]string{"token": token})
 }
 
+// REGISTER
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	//get json payload
 	var payload types.RegisterUserPayload
