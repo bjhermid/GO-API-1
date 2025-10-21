@@ -16,7 +16,7 @@ type Config struct {
 	DBAddres              string
 	DBName                string
 	JWTExperetionInSecond int64
-	JWTSecret string
+	JWTSecret             string
 }
 
 var Envs = initConfig()
@@ -50,6 +50,6 @@ func initConfig() Config {
 		DBAddres:              fmt.Sprintf("%s:%s", getEnv("DB_HOST", "localhost"), getEnv("DB_PORT", "3306")),
 		DBName:                getEnv("DB_NAME", "trainDB"),
 		JWTExperetionInSecond: getEnvInt("JWT_EXP", 3600*24*7),
-		JWTSecret: getEnv("JWT_SECRET", "not-secret-secret-anymore?"),
+		JWTSecret:             getEnv("JWT_SECRET", "not-secret-secret-anymore?"),
 	}
 }
