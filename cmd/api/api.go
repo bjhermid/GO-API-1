@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/bjhermid/go-api-1/services/products"
 	"github.com/bjhermid/go-api-1/services/user"
 	"github.com/gorilla/mux"
 )
@@ -26,9 +27,15 @@ func (s *APIServer) Run() error {
 	router := mux.NewRouter()
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
 
+	//user
 	userStore := user.NewStore(s.db)
 	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(subrouter)
+
+	//products
+	productStore := products.NewStore(s.db)
+	productHandler := products.NewHandler(productStore)
+	productHandler.RegisterRoutes(subrouter)
 
 	//debug
 	log.Println("Listen on", s.addr)

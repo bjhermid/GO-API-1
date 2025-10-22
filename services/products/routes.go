@@ -1,0 +1,29 @@
+package products
+
+import (
+	"net/http"
+
+	"github.com/bjhermid/go-api-1/types"
+	"github.com/bjhermid/go-api-1/utils"
+	"github.com/gorilla/mux"
+)
+
+type Handler struct {
+	store types.ProductStore
+}
+
+func NewHandler(store types.ProductStore) *Handler {
+	return &Handler{store: store}
+}
+
+func (h *Handler) RegisterRoutes(router *mux.Router) {
+	router.HandleFunc("/products", h.handleCreateProduct).Methods(http.MethodGet)
+}
+
+func (h *Handler) handleCreateProduct(w http.ResponseWriter, r *http.Request) {
+	ps, err := h.store.GetProducts()
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+	}
+	utils.WriteJson(w, http.StatusOK, ps)
+}
