@@ -10,6 +10,9 @@ type UserStore interface {
 
 type ProductStore interface {
 	GetProducts() ([]Product, error)
+	GetProductByIDs(ps []int)([]Product, error)
+	UpdateProduct(Product) error
+	
 }
 
 type OrderStore interface {
@@ -22,7 +25,7 @@ type Order struct {
 	UserID    int       `json:"UserID"`
 	Total     float64   `json:"total"`
 	Status    string    `json:"status"`
-	Address   float64   `json:"address"`
+	Address   string   `json:"address"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 

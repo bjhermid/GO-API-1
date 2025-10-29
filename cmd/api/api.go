@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/bjhermid/go-api-1/services/cart"
+	"github.com/bjhermid/go-api-1/services/order"
 	"github.com/bjhermid/go-api-1/services/products"
 	"github.com/bjhermid/go-api-1/services/user"
 	"github.com/gorilla/mux"
@@ -36,6 +38,11 @@ func (s *APIServer) Run() error {
 	productStore := products.NewStore(s.db)
 	productHandler := products.NewHandler(productStore)
 	productHandler.RegisterRoutes(subrouter)
+
+	//cart
+	orderStore := order.NewStore(s.db)
+	cartHandler := cart.NewHandler(orderStore,productStore,userStore)
+	cartHandler.RegisterRoutes(subrouter)
 
 	//debug
 	log.Println("Listen on", s.addr)
